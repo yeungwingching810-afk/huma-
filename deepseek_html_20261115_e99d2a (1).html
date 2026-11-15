@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>她們與窗——被看見的畫室主體</title>
+<style>
+  :root {
+    --bg-dark: #0f0e0d;
+    --bg-panel: #1a1817;
+    --bg-card: #141312;
+    --text-main: #f5f5f5;
+    --text-muted: #9e9a96;
+    --gold: #d4af37;
+    --gold-dim: rgba(212, 175, 55, 0.3);
+    --border-color: #33302e;
+    --transition: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: "Noto Sans TC", "PingFang TC", sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    line-height: 1.8;
+    overflow-x: hidden;
+    background-image: radial-gradient(circle at 50% 0%, #2a2624 0%, #0f0e0d 70%);
+  }
+
+  h1, h2, h3, h4 { font-weight: 300; letter-spacing: 0.05em; }
+  
+  /* 頂部導航 */
+  .top-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.5rem 4rem; background: rgba(15, 14, 13, 0.95);
+    position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; letter-spacing: 0.1em; }
+  .nav-logo .icon { background: var(--gold); color: var(--bg-dark); padding: 2px 6px; font-weight: bold; font-size: 0.9rem; }
+  .nav-links { display: flex; gap: 2rem; font-size: 0.9rem; color: var(--text-muted); }
+  .nav-links span:hover { color: var(--text-main); cursor: pointer; }
+
+  /* 首頁 Hero */
+  .hero {
+    min-height: 90vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 4rem; position: relative;
+    background: linear-gradient(rgba(15,14,13,0.6), rgba(15,14,13,0.9)), url('') center/cover no-repeat;
+  }
+  .hero-sub { color: var(--text-muted); font-size: 1rem; letter-spacing: 0.2em; margin-bottom: 1rem; }
+  .hero-title { font-size: clamp(3rem, 6vw, 6rem); line-height: 1.2; margin-bottom: 2rem; font-weight: 200; }
+  .hero-desc { color: var(--text-muted); max-width: 600px; font-size: 1.1rem; margin-bottom: 3rem; }
+  .hero-btns { display: flex; gap: 1.5rem; }
+  .btn-primary { background: #f5f5f5; color: #0f0e0d; padding: 1rem 2.5rem; border: none; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+  .btn-secondary { background: transparent; color: #f5f5f5; padding: 1rem 2.5rem; border: 1px solid rgba(255,255,255,0.3); font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+  .btn-primary:hover { background: var(--gold); }
+  .btn-secondary:hover { border-color: var(--text-main); }
+
+  /* 章節佈局 */
+  .chapter {
+    display: grid; grid-template-columns: 450px 1fr;
+    min-height: 100vh; border-bottom: 1px solid var(--border-color); position: relative;
+  }
+  @media(max-width: 1024px) {
+    .chapter { grid-template-columns: 1fr; }
+    .chapter-left { position: relative !important; height: auto !important; padding: 3rem 1.5rem !important; }
+    .chapter-right { padding: 2rem 1.5rem !important; }
+    .hero { padding: 2rem; }
+    .top-nav { padding: 1rem 1.5rem; flex-wrap: wrap; gap: 1rem; }
+  }
+
+  .chapter-left {
+    position: sticky; top: 80px; height: calc(100vh - 80px);
+    padding: 4rem; display: flex; flex-direction: column; justify-content: center;
+    background: var(--bg-panel); border-right: 1px solid var(--border-color);
+  }
+  
+  .chapter-num { color: var(--gold); font-size: 0.9rem; letter-spacing: 0.1em; display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+  .chapter-num::after { content: ""; height: 1px; width: 40px; background: var(--text-muted); display: block; }
+  .chapter-title { font-size: 2.2rem; margin-bottom: 1.5rem; line-height: 1.3; }
+  .chapter-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 2; margin-bottom: 2rem; }
+  
+  .progress-indicator { font-size: 0.85rem; color: var(--gold); border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: auto; }
+  
+  .chapter-right { 
+    padding: 6rem 4rem; background: var(--bg-dark);
+    display: flex; flex-direction: column; gap: 30vh; /* 單元間隔 30vh */
+  }
+
+  /* 窗框單元（核心） */
+  .window-unit {
+    position: relative; width: 100%; max-width: 900px; margin: 0 auto;
+    background: transparent; border: none; padding: 0; text-align: left; cursor: pointer;
+    perspective: 800px;
+  }
+
+  .window-frame {
+    position: relative; overflow: hidden; background: var(--bg-card);
+    transition: transform 0.6s var(--transition), box-shadow 0.6s var(--transition);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .window-unit:hover .window-frame {
+    transform: rotateX(2deg) translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+  }
+
+  /* 各章節窗框裝飾 */
+  .frame-ch1 { border: 12px solid #555; } /* 素面灰框 */
+  .frame-ch2 { border: 12px solid #6b705c; border-image: linear-gradient(to bottom, #6b705c, #a3b18a) 1; } /* 竹節紋概念 */
+  .frame-ch3 { border: 12px solid #7a5c5c; border-image: repeating-linear-gradient(45deg, #7a5c5c, #7a5c5c 10px, #9e6f6f 10px, #9e6f6f 20px) 1; } /* 花草纏枝概念 */
+  .frame-ch4 { border: 12px solid #5c6a7a; border-image: linear-gradient(to right, #5c6a7a, #8ea1b5) 1; } /* 幾何折線概念 */
+  .frame-ch5 { border: 6px solid #888; } /* 極簡細線框 */
+
+  /* 局部圖與模糊 */
+  .window-img {
+    width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block;
+    filter: blur(4px); transition: filter 0.6s var(--transition);
+    background: #252220; /* 佔位底色 */
+  }
+  .window-unit:hover .window-img { filter: blur(0); }
+
+  /* 霧氣遮罩 */
+  .window-veil {
+    position: absolute; inset: 0; background: rgba(20, 19, 18, 0.6);
+    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 2.5rem; transition: background 0.6s var(--transition);
+  }
+  .window-unit:hover .window-veil { background: rgba(20, 19, 18, 0.2); backdrop-filter: blur(0); }
+  
+  .window-veil h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .window-veil .meta { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; }
+  .window-veil .hint { font-size: 0.8rem; color: var(--gold); letter-spacing: 0.2em; }
+  .window-unit:hover .window-veil .hint { content: "點擊推開"; }
+
+  /* 展開詳情層 */
+  .detail-panel {
+    display: none; width: 100%; max-width: 900px; margin: -20vh auto 0;
+    background: var(--bg-card); border: 1px solid var(--border-color);
+    padding: 3rem; position: relative; z-index: 10;
+  }
+  .detail-panel.active { display: block; animation: fadeUp 0.6s var(--transition) forwards; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .detail-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 2rem; }
+  @media(max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+
+  /* 左欄：主圖與縮圖 */
+  .detail-img-area { display: flex; flex-direction: column; gap: 1rem; }
+  .detail-main-img { width: 100%; aspect-ratio: 4/3; background: #252220; border: 1px dashed #4a453f; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+  .thumbs-row { display: flex; gap: 0.8rem; }
+  .thumb-btn { width: 60px; height: 60px; background: #252220; border: 2px solid transparent; cursor: pointer; transition: border 0.3s; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-muted); }
+  .thumb-btn.active { border-color: var(--gold); }
+
+  /* 中欄：註釋 */
+  .detail-notes h4 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--text-main); }
+  .detail-notes .meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
+  .note-item { font-size: 0.85rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 1rem; border-left: 2px solid transparent; padding-left: 0.8rem; transition: all 0.3s; }
+  .note-item.active { color: var(--text-main); border-left-color: var(--gold); background: rgba(255,255,255,0.03); padding: 0.5rem 0.8rem; }
+
+  /* 右欄：策展解讀 */
+  .detail-curate { font-size: 0.95rem; color: #ccc; line-height: 2; }
+  .detail-curate h4 { font-size: 1rem; margin-bottom: 1rem; color: var(--gold); letter-spacing: 0.1em; }
+
+  .btn-close { position: absolute; top: 2rem; right: 2rem; background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 0.5rem 1.5rem; cursor: pointer; transition: all 0.3s; }
+  .btn-close:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* 過渡帶 */
+  .transition-band {
+    height: 50vh; display: flex; align-items: center; justify-content: center;
+    background: rgba(10, 9, 9, 0.9); border-bottom: 1px solid var(--border-color);
+    position: relative; overflow: hidden;
+  }
+  .transition-band p {
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem); color: var(--gold); letter-spacing: 0.15em;
+    font-weight: 300; text-align: center; padding: 0 2rem; z-index: 2;
+    opacity: 0; transform: translateY(20px); transition: all 1s var(--transition);
+  }
+  .transition-band.visible p { opacity: 1; transform: translateY(0); }
+
+  /* 第五章數字動畫區塊 */
+  .group-stats {
+    width: 100%; max-width: 900px; margin: 0 auto; text-align: center; padding: 4rem;
+    background: var(--bg-panel); border: 1px solid var(--border-color);
+  }
+  .group-stats .number { font-size: 5rem; color: var(--gold); font-weight: 200; line-height: 1; margin-bottom: 1rem; }
+  .group-stats p { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; margin: 0 auto; }
+
+  @media(prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    .window-img { filter: none; }
+    .transition-band p { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-logo"><span class="icon">她</span> 她們與窗</div>
+  <div class="nav-links">
+    <span>首頁</span>
+    <span>展覽五章</span>
+    <span>作品</span>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-sub">一個關於觀看與被觀看的故事</div>
+  <h1 class="hero-title">她們與窗——被<br>看見的畫室主體</h1>
+  <p class="hero-desc">五章垂直旅程，追蹤中國女性藝術家從被動的道德圖像客體，走向自主創作主體的漫長過程。推開這扇窗，走進一間安靜的展廳。</p>
+</section>
+
+<!-- 第一章 -->
+<section class="chapter">
+  <div class="chapter-left">
+    <div class="chapter-num">第一章 · 01 / 05</div>
+    <h2 class="chapter-title">被觀看的「標準像」</h2>
+    <p class="chapter-desc">漢唐以下的規訓之窗。女性的形象先是一套道德語彙：孝、義、順、貞。畫家讓她坐進簾幕與窗框之間，替她決定能被看見的範圍。本章只看一件事——當她的身體被畫成符號，窗是保護，還是界線。</p>
+    <div class="progress-indicator">本章 1 件作品</div>
+  </div>
+  <div class="chapter-right">
+    <button class="window-unit" onclick="toggleDetail('d1')" aria-haspopup="dialog">
+      <div class="window-frame frame-ch1">
+        <div class="window-img">待上傳：女史箴圖局部</div>
+        <div class="window-veil">
+          <h3>傳顧愷之《女史箴圖》</h3>
+          <div class="meta">宋摹本 · 故宮博物院藏</div>
+          <div class="hint">推開窗</div>
+        </div>
+      </div>
+    </button>
+    <div class="detail-panel" id="d1" role="dialog" aria-modal="true">
+      <button class="btn-close" onclick="closeDetail(event, 'd1')">關窗 ✕</button>
+      <div class="detail-grid">
+        <div class="detail-img-area">
+          <div class="detail-main-img">待上傳：全圖</div>
+          <div class="thumbs-row">
+            <button class="thumb-btn active" onclick="switchThumb(this, 'd1', 0)">局部1</button>
+            <button class="thumb-btn" onclick="switchThumb(this, 'd1', 1)">局部2</button>
+          </div>
+        </div>
+        <div class="detail-notes">
+          <h4>作品基本信息</h4>
+          <div class="meta">傳顧愷之《女史箴圖》<br>宋摹本 · 絹本設色 · 故宮博物院藏</div>
+          <div class="note-item active">馮婕妤擋熊段：女性身體比例刻意畫「小」與「順」，姿態服務於規誡功能。</div>
+          <div class="note-item">衣紋線條：遊絲描的均勻與克制，與人物「卑順」的視覺語言一致。</div>
+        </div>
+        <div class="detail-curate">
+          <h4>策展解讀</h4>
+          此卷以張華《女史箴》為文本圖解婦德規範。選此件作為展覽的反面起點——女性尚未成為觀看主體，形象首先是一套道德符號。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="transition-band"><p>「她的身體，是誰的規訓？」</p></div>
+
+<!-- 第二章 -->
+<section class="chapter">
+  <div class="chapter-left">
+    <div class="chapter-num">第二章 · 02 / 05</div>
+    <h2 class="chapter-title">最早留下名字的女性之手</h2>
+    <p class="chapter-desc">她們開始在角落裡寫下自己的名字。墨竹在文人畫中象徵清高骨氣，歷來是男性士大夫的精神自畫像。當女性之手進入這套符號體系，她是在模仿，還是在改寫？</p>
+    <div class="progress-indicator">本章 1 件作品</div>
+  </div>
+  <div class="chapter-right">
+    <button class="window-unit" onclick="toggleDetail('d2')">
+      <div class="window-frame frame-ch2">
+        <div class="window-img">待上傳：水竹圖局部</div>
+        <div class="window-veil">
+          <h3>管道昇《水竹圖》卷</h3>
+          <div class="meta">元代 · 故宮博物院藏</div>
+          <div class="hint">推開窗</div>
+        </div>
+      </div>
+    </button>
+    <div class="detail-panel" id="d2">
+      <button class="btn-close" onclick="closeDetail(event, 'd2')">關窗 ✕</button>
+      <div class="detail-grid">
+        <div class="detail-img-area">
+          <div class="detail-main-img">待上傳：全圖</div>
+          <div class="thumbs-row">
+            <button class="thumb-btn active" onclick="switchThumb(this, 'd2', 0)">竹葉</button>
+            <button class="thumb-btn" onclick="switchThumb(this, 'd2', 1)">款識</button>
+          </div>
+        </div>
+        <div class="detail-notes">
+          <h4>作品基本信息</h4>
+          <div class="meta">管道昇《水竹圖》卷<br>元代 · 紙本墨筆 · 故宮博物院藏</div>
+          <div class="note-item active">竹葉撇法：行筆速度與墨色層次，可與趙孟頫竹石並置比較。</div>
+          <div class="note-item">款識「仲姬」：她在一竿墨竹的角落寫下自己的名字，很小，很輕。</div>
+        </div>
+        <div class="detail-curate">
+          <h4>策展解讀</h4>
+          管道昇是元代最著名的女畫家之一，趙孟頫之妻。她以女性之手畫竹，等於借用了一套男性話語體系中的「高潔」符號。線上展並置她的墨竹與趙孟頫的竹石，讓觀眾尋找筆力與氣韻的微妙差異。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="transition-band"><p>「署名之後，話語權隨之而來嗎？」</p></div>
+
+<!-- 第三章 -->
+<section class="chapter">
+  <div class="chapter-left">
+    <div class="chapter-num">第三章 · 03 / 05</div>
+    <h2 class="chapter-title">晚明女畫家的「空前盛況」</h2>
+    <p class="chapter-desc">據《玉台畫史》統計，晚明女畫家之盛，是空前絕後的。但崛起形態是分裂的：一種在家族內部獲得資源，一種在市場中換取生存。</p>
+    <div class="progress-indicator">本章 2 件作品</div>
+  </div>
+  <div class="chapter-right">
+    <button class="window-unit" onclick="toggleDetail('d3')">
+      <div class="window-frame frame-ch3">
+        <div class="window-img">待上傳：萱石圖局部</div>
+        <div class="window-veil">
+          <h3>文俶《萱石圖》軸</h3>
+          <div class="meta">明代 · 故宮博物院藏</div>
+          <div class="hint">推開窗</div>
+        </div>
+      </div>
+    </button>
+    <div class="detail-panel" id="d3">
+      <button class="btn-close" onclick="closeDetail(event, 'd3')">關窗 ✕</button>
+      <div class="detail-grid">
+        <div class="detail-img-area">
+          <div class="detail-main-img">待上傳：全圖</div>
+        </div>
+        <div class="detail-notes">
+          <h4>作品基本信息</h4>
+          <div class="meta">文俶《萱石圖》軸<br>明代 · 絹本設色 · 故宮博物院藏</div>
+          <div class="note-item active">萱花與湖石：萱草象徵「宜男」，鮮豔花色與墨染湖石形成冷暖對比。</div>
+        </div>
+        <div class="detail-curate">
+          <h4>策展解讀</h4>
+          文俶是文徵明玄孫女，明代閨秀畫家代表。她的萱草題材透露出閨閣之內的生育壓力，但她也用四年時間描摹《本草綱目》插圖千餘幅，那是她為自己打開的另一扇窗。
+        </div>
+      </div>
+    </div>
+
+    <button class="window-unit" onclick="toggleDetail('d4')">
+      <div class="window-frame frame-ch3">
+        <div class="window-img">待上傳：蘭竹石圖局部</div>
+        <div class="window-veil">
+          <h3>馬守真《蘭竹石圖》卷</h3>
+          <div class="meta">明代 · 故宮博物院藏</div>
+          <div class="hint">推開窗</div>
+        </div>
+      </div>
+    </button>
+    <div class="detail-panel" id="d4">
+      <button class="btn-close" onclick="closeDetail(event, 'd4')">關窗 ✕</button>
+      <div class="detail-grid">
+        <div class="detail-img-area">
+          <div class="detail-main-img">待上傳：全圖</div>
+        </div>
+        <div class="detail-notes">
+          <h4>作品基本信息</h4>
+          <div class="meta">馬守真《蘭竹石圖》卷<br>明代 · 紙本墨筆 · 故宮博物院藏</div>
+          <div class="note-item active">蘭葉沒骨撇法：一筆之中的枯潤變化，行筆流暢，墨色自然顯出濃淡乾濕。</div>
+        </div>
+        <div class="detail-curate">
+          <h4>策展解讀</h4>
+          馬守真是「秦淮八艷」之一，以畫蘭謀生。蘭花在文人畫中象徵君子幽芳，她卻用這最「清高」的題材做最「世俗」的營生。她的繪畫既是職業，也是與文人名士交往的社交資本。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="transition-band"><p>「同一時代，兩種崛起——哪一種更接近自主？」</p></div>
+
+<!-- 第四章 -->
+<section class="chapter">
+  <div class="chapter-left">
+    <div class="chapter-num">第四章 · 04 / 05</div>
+    <h2 class="chapter-title">走出閨閣——革命者與職業者</h2>
+    <p class="chapter-desc">何香凝將自己奉獻給更大的事業；潘玉良將自己確立為藝術的主體。兩者都是女性從「被觀看」走向「自主行動」的證明。</p>
+    <div class="progress-indicator">本章 2 件作品</div>
+  </div>
+  <div class="chapter-right">
+    <button class="window-unit" onclick="toggleDetail('d5')">
+      <div class="window-frame frame-ch4">
+        <div class="window-img">待上傳：虎嘯圖局部</div>
+        <div class="window-veil">
+          <h3>何香凝《虎嘯圖》</h3>
+          <div class="meta">1910年 · 深圳博物館藏</div>
+          <div class="hint">推開窗</div>
+        </div>
+      </div>
+    </button>
+    <div class="detail-panel" id="d5">
+      <button class="btn-close" onclick="closeDetail(event, 'd5')">關窗 ✕</button>
+      <div class="detail-grid">
+        <div class="detail-img-area">
+          <div class="detail-main-img">待上傳：全圖</div>
+        </div>
+        <div class="detail-notes">
+          <h4>作品基本信息</h4>
+          <div class="meta">何香凝《虎嘯圖》<br>1910年 · 設色絹本 · 深圳博物館藏</div>
+          <div class="note-item active">虎首咆哮神態：筋骨用筆力度，一反當時女性畫家多致力花鳥的潮流。</div>
+        </div>
+        <div class="detail-curate">
+          <h4>策展解讀</h4>
+          何香凝赴日留學期間以藝術為革命武器。1910年的虎畫，畫的是猛虎，不是花卉仕女——她選擇的題材本身就是對「女性畫什麼」的越界。
+        </div>
+      </div>
+    </div>
+
+    <button class="window-unit" onclick="toggleDetail('d6')">
+      <div class="window-frame frame-ch4">
+        <div class="window-img">待上傳：黑衣自畫像局部</div>
+        <div class="window-veil">
+          <h3>潘玉良《黑衣自畫像》</h3>
+          <div class="meta">1940年 · 油畫</div>
+          <div class="hint">推開窗</div>
+        </div>
+      </div>
+    </button>
+    <div class="detail-panel" id="d6">
+      <button class="btn-close" onclick="closeDetail(event, 'd6')">關窗 ✕</button>
+      <div class="detail-grid">
+        <div class="detail-img-area">
+          <div class="detail-main-img">待上傳：全圖</div>
+        </div>
+        <div class="detail-notes">
+          <h4>作品基本信息</h4>
+          <div class="meta">潘玉良《黑衣自畫像》<br>1940年 · 油畫 · 90×64cm</div>
+          <div class="note-item active">面部眼神與紅暈：目光直視畫外，不再是被觀看的東方女子。</div>
+        </div>
+        <div class="detail-curate">
+          <h4>策展解讀</h4>
+          潘玉良出身貧寒，後赴法留學。1940年的《黑衣自畫像》畫中她以墨線勾成黑色旗袍，油畫筆觸與中國白描線條融合。她的崛起體現在：以畫筆定義自己，而非被他人定義。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="transition-band"><p>「從一個人推開窗，到一群人站在窗前。」</p></div>
+
+<!-- 第五章 -->
+<section class="chapter" style="border-bottom:none;">
+  <div class="chapter-left">
+    <div class="chapter-num">第五章 · 05 / 05</div>
+    <h2 class="chapter-title">制度性在場——從個人到群體</h2>
+    <p class="chapter-desc">從前，故宮的藏品裡找不出幾件署著女人名字的畫；今天，一場展覽可以站滿幾百個她。這種選擇的自由本身，就是崛起的標誌。</p>
+    <div class="progress-indicator">本章 1 件作品 ＋ 群體在場</div>
+  </div>
+  <div class="chapter-right">
+    <button class="window-unit" onclick="toggleDetail('d7')">
+      <div class="window-frame frame-ch5">
+        <div class="window-img">待上傳：長白青松局部</div>
+        <div class="window-veil">
+          <h3>周思聰《長白青松》</h3>
+          <div class="meta">1973年 · 中國美術館藏</div>
+          <div class="hint">推開窗</div>
+        </div>
+      </div>
+    </button>
+    <div class="detail-panel" id="d7">
+      <button class="btn-close" onclick="closeDetail(event, 'd7')">關窗 ✕</button>
+      <div class="detail-grid">
+        <div class="detail-img-area">
+          <div class="detail-main-img">待上傳：全圖</div>
+        </div>
+        <div class="detail-notes">
+          <h4>作品基本信息</h4>
+          <div class="meta">周思聰《長白青松》<br>1973年 · 紙本設色 · 中國美術館藏</div>
+          <div class="note-item active">女戰士面部：質樸刻畫，即便在時代要求下仍以真情實感為出發點。</div>
+        </div>
+        <div class="detail-curate">
+          <h4>策展解讀</h4>
+          周思聰是新中國培養的最優秀的寫實水墨人物畫家之一。她的「崛起」在於：既能進入公共話語，也能在1980年代轉向彝女系列退回個人視野。
+        </div>
+      </div>
+    </div>
+
+    <!-- 作品 8：數字動畫 -->
+    <div class="group-stats">
+      <div class="number" id="statsNum">1</div>
+      <p>故宮藏畫中署名女性作品屈指可數；而當代全國性女藝術家展覽動輒數百人參展。從「個案」到「群體」。</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 詳情展開與關閉
+  function toggleDetail(id) {
+    const detail = document.getElementById(id);
+    const isActive = detail.classList.contains('active');
+    
+    // 先關閉所有
+    document.querySelectorAll('.detail-panel').forEach(d => d.classList.remove('active'));
+    
+    if (!isActive) {
+      detail.classList.add('active');
+      // 滾動到該區塊
+      setTimeout(() => {
+        detail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  }
+
+  function closeDetail(e, id) {
+    e.stopPropagation();
+    const detail = document.getElementById(id);
+    detail.classList.remove('active');
+  }
+
+  // 縮圖切換與文字高亮
+  function switchThumb(btn, detailId, index) {
+    const detail = document.getElementById(detailId);
+    const thumbs = detail.querySelectorAll('.thumb-btn');
+    const notes = detail.querySelectorAll('.note-item');
+    
+    thumbs.forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    
+    notes.forEach((n, i) => {
+      if (i === index) n.classList.add('active');
+      else n.classList.remove('active');
+    });
+    // 這裡後續可以加入替換主圖 src 的邏輯
+  }
+
+  // Esc 關閉
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.detail-panel').forEach(d => d.classList.remove('active'));
+    }
+  });
+
+  // 過渡帶淡入
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.3 });
+  
+  document.querySelectorAll('.transition-band').forEach(band => observer.observe(band));
+
+  // 數字滾動動畫
+  const statsNum = document.getElementById('statsNum');
+  let animated = false;
+  const statsObserver = new Inters
